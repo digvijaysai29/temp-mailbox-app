@@ -1,36 +1,59 @@
 // src/components/MailboxForm.tsx
 
-import { useState } from 'react';
+"use client";  // Add this line
+
+import { useState, useEffect } from 'react';
+import { gsap } from 'gsap';
 
 const MailboxForm = () => {
+    // State to store the mailbox input
     const [mailbox, setMailbox] = useState('');
 
-    const handleCreateMailbox = async () => {
-        const response = await fetch('/api/mailboxes', {
-            method: 'POST',
-        });
-        const data = await response.json();
-        setMailbox(data.mailbox);
+    // Effect to run GSAP animation when the component mounts
+    useEffect(() => {
+        gsap.fromTo(
+            ".mailbox-form",
+            { opacity: 0, y: -20 },
+            { opacity: 1, y: 0, duration: 1 }
+        );
+    }, []);
+
+    // Handler for form submission
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (mailbox.trim() === '') {
+            alert('Please enter a mailbox name or email!');
+            return;
+        }
+
+        // Perform your form submission logic here
+        console.log(`Submitted mailbox: ${mailbox}`);
+
+        // Reset the form after submission
+        setMailbox('');
+
+        // Optional: Trigger a success animation
+        gsap.to(".submit-btn", { scale: 1.2, duration: 0.2, yoyo: true, repeat: 1 });
     };
 
     return (
-        <div className="flex flex-col items-center">
-            <button onClick={handleCreateMailbox} className="btn bg-blue-500 text-white px-4 py-2 rounded">
-                Create Temporary Mailbox
+        <form className="mailbox-form" onSubmit={handleSubmit}>
+            <div>
+                <label htmlFor="mailbox">Mailbox:</label>
+                <input
+                    type="text"
+                    id="mailbox"
+                    value={mailbox}
+                    onChange={(e) => setMailbox(e.target.value)}
+                    placeholder="Enter mailbox name or email"
+                    required
+                />
+            </div>
+            <button type="submit" className="submit-btn">
+                Submit
             </button>
-            {mailbox && <p className="text-green-500 mt-4">Your temporary mailbox is: {mailbox}</p>}
-        </div>
+        </form>
     );
 };
 
 export default MailboxForm;
-import { useEffect } from 'react';
-import { gsap } from 'gsap';
-
-const MailboxForm = () => {
-    useEffect(() => {
-        gsap.from(".btn", { duration: 1, opacity: 0, y: -50 });
-    }, []);
-
-    // Rest of the component...
-};
